@@ -8,6 +8,10 @@ import AllBooks from './AllBooks';
 
 
 class BookSearch extends Component {
+  /*
+  we specify the types of each props we are passing in this component,
+  and also setting the type to required.
+  */
   static propTypes = {
     searchedBooks: PropTypes.array.isRequired,
     onUpdateShelf: PropTypes.func.isRequired
@@ -131,8 +135,7 @@ class BookSearch extends Component {
                   key={book.id}
                   book={book}
                   onUpdateShelf={(shelf) => onUpdateShelf(book, shelf)}/>
-              ))
-              }
+              ))}
             </ol>
           </div>
         </div>
