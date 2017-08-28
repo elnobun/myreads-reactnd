@@ -18,6 +18,8 @@ This application uses the [Create React App](https://github.com/facebookincubato
   |-- add.svg
   |-- arrow-back.svg
   |-- arrow-drop-down.svg
+ +-- utils
+  |-- BookAPI - This contains the methods needed to perform necessary operations on the backend 
  |-- App.js - This is the root of the app. Contains static HTML right now.
  |-- App.css - Styles for the app. Feel free to customize this as you desire.
  |-- App.test.js - Used for testing. Provided with Create React App. 
@@ -39,7 +41,7 @@ for you to use with your app.
 ## Backend Server
 
 The provided file [`BooksAPI.js`](src/utils/BooksAPI.js) contains the methods needed 
-to perform necessary operations on the backend:
+to perform necessary operations on the backend.
 
 ### `getAll()`
 * Returns a Promise which resolves to a JSON object containing a collection of book objects.
