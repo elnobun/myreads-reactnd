@@ -20,7 +20,7 @@ This application uses the [Create React App](https://github.com/facebookincubato
   |-- arrow-drop-down.svg
  +-- utils
   |-- BookAPI - This contains the methods needed to perform necessary operations on the backend 
- |-- App.js - This is the root of the app. Contains static HTML right now.
+ |-- App.js - This is the root of the app. Contains dynamic React pages.
  |-- App.css - Styles for the app. Feel free to customize this as you desire.
  |-- App.test.js - Used for testing. Provided with Create React App. 
  Testing is encouraged, but not required.
