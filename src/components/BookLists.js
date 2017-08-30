@@ -38,8 +38,8 @@ class BookLists extends Component {
     /*
     We make variables that comes from this.props
     */
+    const {books, onUpdateShelf} = this.props;
     const shelves = this.shelves;
-    const {onUpdateShelf, books} = this.props;
 
     return (
       /*

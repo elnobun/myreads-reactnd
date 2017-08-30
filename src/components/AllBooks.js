@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
+import BookShelfSelector from './BookShelfSelector';
 
 class AllBooks extends Component {
   /*
@@ -8,6 +9,7 @@ class AllBooks extends Component {
   */
   static propTypes = {
     book: PropTypes.object.isRequired,
+    books: PropTypes.array.isRequired,
     onUpdateShelf: PropTypes.func.isRequired
   };
 
@@ -15,16 +17,20 @@ class AllBooks extends Component {
   /*
   This event function handles the changes to the shelf of an input value
   */
-  handleShelfChange = (e) => {
-    this.props.onUpdateShelf(e.target.value)
-  };
+  // handleShelfChange = (e) => {
+  //   this.props.onUpdateShelf(e.target.value)
+  // };
 
   render() {
-    /*
-    We make variable that comes from this.props, and image link from the book API
-    */
-    const {book} = this.props;
-    const imageLink = book.imageLinks.thumbnail || book.imageLinks.smallThumbnail;
+    // We make variable that comes from this.props, and image link from the book API
+    const {book, books, onUpdateShelf} = this.props;
+
+    // Create a fallback for missing title, author name or images.
+    const title = book.title ? book.title : 'No title';
+    const authors = (book.authors === undefined) ? [] : book.authors;
+    const coverImg = book.imageLinks && book.imageLinks.thumbnail ? book.imageLinks.thumbnail : 'noCover';
+
+
 
     return (
       /*
@@ -32,27 +38,23 @@ class AllBooks extends Component {
       Book Shelf. The Book Shelf component shows the status of the
       shelf, as well as the book that is present on a particular shelf.
       */
-      <li key={book.id}>
+      <li>
         <div className="book">
           <div className="book-top">
             <div className="book-cover"
                  style={{
                    width: 128,
                    height: 193,
-                   backgroundImage: `url("${imageLink}")`
+                   backgroundImage: `url(${coverImg})`
                  }}></div>
-            <div className="book-shelf-changer">
-              <select onChange={this.handleShelfChange} value={book.shelf}>
-                <option value disabled>Move to...</option>
-                <option value="none">None</option>
-                <option value="currentlyReading">Currently Reading</option>
-                <option value="wantToRead">Want to Read</option>
-                <option value="read">Read</option>
-              </select>
-            </div>
+            <BookShelfSelector
+              book={book}
+              books={books}
+              onUpdateShelf={onUpdateShelf}
+            />
           </div>
-          <div className="book-title">{book.title}</div>
-          <div className="book-authors">{book.authors}</div>
+          <div className="book-title">{title}</div>
+          <div className="book-authors">{`by ${authors.join(', ')}`}</div>
         </div>
       </li>
     )

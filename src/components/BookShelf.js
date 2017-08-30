@@ -30,11 +30,12 @@ class BookShelf extends Component {
         <h2 className="bookshelf-title">{title}</h2>
         <div className="bookshelf-books">
           <ol className="books-grid">
-            {books.map((book, index) => (
+            {books.map((book) => (
               <AllBooks
-                key={index}
+                key={book.id}
                 book={book}
-                onUpdateShelf={(shelf) => onUpdateShelf(book, shelf)}
+                books={books}
+                onUpdateShelf={onUpdateShelf}
               />
             ))}
           </ol>

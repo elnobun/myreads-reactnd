@@ -20,8 +20,10 @@ class BooksApp extends React.Component {
   Here, we create a function `getAllBooks`, to fetch all the books from the Books API,
   and set the books state to the Books from the API.
   */
-  getAllBooks() {
-    BooksAPI.getAll().then((books) => this.setState({books}))
+  getAllBooks = () => {
+    BooksAPI.getAll().then((books) => {
+      this.setState({books})
+    })
   };
 
   /*
@@ -29,9 +31,8 @@ class BooksApp extends React.Component {
   getAllBooks function.
   */
   componentDidMount() {
-    this.getAllBooks()
+    this.getAllBooks();
   }
-
   /*
   Then we declare a function `updateBookShelf`. This function takes
   two argument (book id, and shelf status). This function updates the books on the
@@ -40,36 +41,46 @@ class BooksApp extends React.Component {
   We achieve this by calling the Update function from the Book API, which will
   update the book 'id' parameter, on a particular shelf.
   */
-  updateBookShelf(book, shelf) {
-    BooksAPI.update(book, shelf).then(() => this.getAllBooks())
-  }
+  updateBookShelf = (newBook, newShelf) => {
+    BooksAPI.update(newBook, newShelf).then((data) => {
+
+      //Set new shelf
+      newBook.shelf = newShelf;
+
+      // Get the list of new books
+      const updatedBooks = this.state.books.filter((book) => book.id !== newBook.id);
+
+      //  Add the updated book to the array list, and set a new state.
+      updatedBooks.push(newBook);
+      this.setState({books: updatedBooks})
+    })
+  };
 
 
   render() {
     const {books} = this.state;
 
     return (
-        /*
-        Here, we are returning the JSX representation of the
-        Book Search and Book List. We are also using the REACT ROUTER to switch between
-        the book search and book list components.
-        */
-        <div className="app">
-          <Route path="/search" render={({history}) => (
-              <BookSearch
-                searchedBooks={books}
-                onUpdateShelf={(id, shelf) => {this.updateBookShelf(id, shelf);
-                history.push('/')}}
-              />
-          )}/>
+      /*
+      Here, we are returning the JSX representation of the
+      Book Search and Book List. We are also using the REACT ROUTER to switch between
+      the book search and book list components.
+      */
+      <div className="app">
+        <Route path="/search" render={({history}) => (
+          <BookSearch
+            books={books}
+            onUpdateShelf={this.updateBookShelf}
+          />
+        )}/>
 
-          <Route exact path="/" render={() => (
-              <BookLists
-                  books={books}
-                  onUpdateShelf={(id, shelf) => (this.updateBookShelf(id, shelf))}
-              />
-          )}/>
-        </div>
+        <Route exact path="/" render={() => (
+          <BookLists
+            books={books}
+            onUpdateShelf={this.updateBookShelf}
+          />
+        )}/>
+      </div>
     )
   }
 }

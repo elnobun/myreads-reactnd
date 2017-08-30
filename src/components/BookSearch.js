@@ -3,7 +3,7 @@ import {Link} from 'react-router-dom';
 import * as BooksAPI from '../utils/BooksAPI';
 import escapeRegExp from 'escape-string-regexp';
 import sortBy from 'sort-by';
-import {PropTypes} from 'prop-types';
+import PropTypes from 'prop-types';
 import AllBooks from './AllBooks';
 
 
@@ -13,13 +13,14 @@ class BookSearch extends Component {
   and also setting the type to required.
   */
   static propTypes = {
-    searchedBooks: PropTypes.array.isRequired,
+    books: PropTypes.array.isRequired,
     onUpdateShelf: PropTypes.func.isRequired
   };
 
   state = {
     query: '',
-    books: []
+    newBook: [],
+    noSearch: false
   };
 
   /*
@@ -30,39 +31,60 @@ class BookSearch extends Component {
   that status is reflected in search location until the book is removed from the shelf. This
   will automatically set the status to None in the search list
   */
-  getAllBooks() {
-    BooksAPI.getAll().then((books) => this.setState({books}))
-  };
 
-  componentDidMount() {
-    this.getAllBooks()
-  }
+  // getAllBooks() {
+  //   BooksAPI.getAll().then((books) => this.setState({books}))
+  // };
 
-  /*
-  This function updates the search query, and trims out any white space
-  */
-  updateQuery = (query) => {
-    this.setState({query: query.trim()});
-    this.searchBook(query)
-  };
+  // componentDidMount() {
+  //   this.getAllBooks()
+  // }
+  //
+  // /*
+  // This function updates the search query, and trims out any white space
+  // */
+  // updateQuery = (query) => {
+  //   this.setState({query: query.trim()});
+  //   this.searchBook(query)
+  // };
+  //
+  // /*
+  // This function updates the bookshelf status. If a book has not not been placed
+  // on the shelf, the status of that book on the shelf is set to none.
+  // */
+  // updateShelfStatus = (books) => {
+  //   let bookLists = this.props.searchedBooks;
+  //   for (let book of books) {
+  //     book.shelf = 'none';
+  //   }
+  //   for (let book of books) {
+  //     for (let bl of bookLists) {
+  //       if (bl.id === book.id) {
+  //         book.shelf = bl.shelf
+  //       }
+  //     }
+  //   }
+  //   return books
+  // };
 
-  /*
-  This function updates the bookshelf status. If a book has not not been placed
-  on the shelf, the status of that book on the shelf is set to none.
-  */
-  updateShelfStatus = (books) => {
-    let bookLists = this.props.searchedBooks;
-    for (let book of books) {
-      book.shelf = 'none';
+  searchedBooks = (event) => {
+    const query = event.target.value;
+    this.setState({query: query});
+
+    // Begin the search as user types in data
+    // If the user search get results, the search error is not shown.
+    // Otherwise, a no search error is raised.
+    if (query) {
+      BooksAPI.search(query, 20).then((books) => {
+        books.length > 0 ? this.setState({newBook: books, noSearch: false}) : this.setState({
+          newBook: [],
+          noSearch: true
+        })
+      })
+    } else {
+      //  Everything is back to default
+      this.setState({newBook: [], noSearch: true})
     }
-    for (let book of books) {
-      for (let bl of bookLists) {
-        if (bl.id === book.id) {
-          book.shelf = bl.shelf
-        }
-      }
-    }
-    return books
   };
 
   clearQuery = () => {
@@ -74,70 +96,78 @@ class BookSearch extends Component {
   As the User types a book, the search result is limited to a certain
   amount.
   */
-  searchBook = (query) => {
-    if (query.length !== 0) {
-      BooksAPI.search(query, 10).then((books) => {
-        if (books.length > 0) {
-          books = books.filter((book) => book.imageLinks);
-          books = this.updateShelfStatus(books);
-          this.setState({books})
-        }
-        else {
-          this.setState({books: []})
-        }
-      })
-    } else {
-      this.setState({books: [], query: ''})
-    }
-  };
+  // searchBook = (query) => {
+  //   if (query.length !== 0) {
+  //     BooksAPI.search(query, 10).then((books) => {
+  //       if (books.length > 0) {
+  //         books = books.filter((book) => book.imageLinks);
+  //         books = this.updateShelfStatus(books);
+  //         this.setState({books})
+  //       }
+  //       else {
+  //         this.setState({books: []})
+  //       }
+  //     })
+  //   } else {
+  //     this.setState({books: [], query: ''})
+  //   }
+  // };
 
 
   render() {
-    const {query, books} = this.state;
-    const {onUpdateShelf} = this.props;
+    const {query, newBook, noSearch} = this.state;
+    const {books, onUpdateShelf} = this.props;
 
     let showingBooks;
 
     if (query) {
       const match = new RegExp(escapeRegExp(query), 'i');
-      showingBooks = books.filter((book) => match.test(book.title))
+      showingBooks = newBook.filter((book) => match.test(book.title))
 
     } else {
-      showingBooks = books
+      showingBooks = newBook
     }
 
     showingBooks.sort(sortBy('title'));
 
     return (
-      <div>
-        <div className="search-books">
-          <div className="search-books-bar">
-            <Link to="/" className="close-search">Close</Link>
-            <div className="search-books-input-wrapper">
-              <input type="text"
-                     placeholder="Search by title or author"
-                     value={query}
-                     onChange={event => this.updateQuery(event.target.value)}
-              />
-
-            </div>
+      <div className="search-books">
+        <div className="search-books-bar">
+          <Link to="/" className="close-search">Close</Link>
+          <div className="search-books-input-wrapper">
+            <input type="text"
+                   placeholder="Search by title or author"
+                   value={query}
+                   onChange={this.searchedBooks}
+            />
           </div>
-          <div className="search-books-results">
-            {showingBooks.length !== books.length && (
-              <div>
-                <span>Showing {showingBooks.length} of {books.length} Books</span>
-                <button onClick={this.clearQuery}>Show All</button>
+        </div>
+        <div className="search-books-results">
+          {showingBooks.length > 0 && (
+            <div>
+              <div className="">
+                <span>Showing {showingBooks.length}  Books</span>
+                {/*<button onClick={this.clearQuery}>Show All</button>*/}
               </div>
-            )}
-            <ol className="books-grid">
-              {showingBooks.map((book) => (
-                <AllBooks
-                  key={book.id}
-                  book={book}
-                  onUpdateShelf={(shelf) => onUpdateShelf(book, shelf)}/>
-              ))}
-            </ol>
-          </div>
+
+              <ol className="books-grid">
+                {showingBooks.map((book) => (
+                  <AllBooks
+                    key={book.id}
+                    book={book}
+                    books={books}
+                    onUpdateShelf={onUpdateShelf}/>
+                ))}
+              </ol>
+            </div>
+          )}
+          {noSearch && (
+            <div>
+              <div className="">
+                <h3>Searching....</h3>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     )
